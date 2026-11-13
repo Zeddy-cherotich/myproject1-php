@@ -5,7 +5,6 @@ if (!isset($_SESSION['username'])){
     exit();
 }
 ?>
-<link rel="stylesheet"href="style.css">
 <?php
 include 'db.php';
 if (isset($_POST['add'])) {
@@ -34,44 +33,103 @@ if (isset($_GET['edit'])) {
 
 $result = $conn->query("SELECT * FROM students");
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Students | Student Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page-shell">
+    <header class="topbar">
+        <a class="brand" href="index.php">
+            <span class="brand-mark" aria-hidden="true">S</span>
+            <span>STUDENT PORTAL</span>
+        </a>
+        <div class="user-menu">
+            <span>Welcome, <strong><?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?></strong></span>
+            <a href="logout.php">Log out</a>
+        </div>
+    </header>
 
-<h1>Student List</h1>
-<p style="text-align:center;">welcome,<?php echo $_SESSION['username'];?>|<a href="logout.php">Logout</a></p>
-<?php if ($edit_student) { ?>
-    <h3>Edit Student ID <?php echo $edit_student['id']; ?></h3>
-    <form method="POST">
-        <input type="hidden" name="id" value="<?php echo $edit_student['id']; ?>">
-        <input type="text" name="name" value="<?php echo $edit_student['name']; ?>" required>
-        <input type="text" name="course" value="<?php echo $edit_student['course']; ?>" required>
-        <input type="text" name="phone" value="<?php echo $edit_student['phone']; ?>" required>
-        <button type="submit" name="update">Save Changes</button>
-        <a href="index.php">Cancel</a>
-    </form>
-<?php } else { ?>
-    <form method="POST">
-        <input type="text" name="name" placeholder="Enter Name" required>
-        <input type="text" name="course" placeholder="Enter Course" required>
-        <input type="text" name="phone" placeholder="Enter Phone" required>
-        <button type="submit" name="add">Add Student</button>
-    </form>
-<?php } ?>
+    <section class="page-heading">
+        <h1>Students</h1>
+        <p>Manage student records, courses, and contact details.</p>
+    </section>
 
-<hr>
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2><?php echo $edit_student ? 'Edit student' : 'Add a student'; ?></h2>
+                <p><?php echo $edit_student ? 'Update the details below.' : 'Enter the student details to add a record.'; ?></p>
+            </div>
+        </div>
+        <form class="student-form" method="POST">
+            <?php if ($edit_student) { ?>
+                <input type="hidden" name="id" value="<?php echo (int) $edit_student['id']; ?>">
+            <?php } ?>
+            <div class="field">
+                <label for="student-name">Full name</label>
+                <input id="student-name" type="text" name="name" placeholder="e.g. Alex Morgan" value="<?php echo $edit_student ? htmlspecialchars($edit_student['name'], ENT_QUOTES, 'UTF-8') : ''; ?>" required>
+            </div>
+            <div class="field">
+                <label for="student-course">Course</label>
+                <input id="student-course" type="text" name="course" placeholder="e.g. Computer Science" value="<?php echo $edit_student ? htmlspecialchars($edit_student['course'], ENT_QUOTES, 'UTF-8') : ''; ?>" required>
+            </div>
+            <div class="field">
+                <label for="student-phone">Phone number</label>
+                <input id="student-phone" type="text" name="phone" placeholder="e.g. +1 555 0100" value="<?php echo $edit_student ? htmlspecialchars($edit_student['phone'], ENT_QUOTES, 'UTF-8') : ''; ?>" required>
+            </div>
+            <button class="button" type="submit" name="<?php echo $edit_student ? 'update' : 'add'; ?>">
+                <?php echo $edit_student ? 'Save changes' : 'Add student'; ?>
+            </button>
+            <?php if ($edit_student) { ?>
+                <a class="button button-secondary" href="index.php">Cancel</a>
+            <?php } ?>
+        </form>
+    </section>
 
-<table border="1" cellpadding="10">
-    <tr>
-        <th>ID</th><th>Name</th><th>Course</th><th>Phone</th><th>Action</th>
-    </tr>
-    <?php while($row = $result->fetch_assoc()) { ?>
-    <tr>
-        <td><?php echo $row['id']; ?></td>
-        <td><?php echo $row['name']; ?></td>
-        <td><?php echo $row['course']; ?></td>
-        <td><?php echo $row['phone']; ?></td>
-        <td>
-            <a href="?edit=<?php echo $row['id']; ?>">Edit</a> |
-            <a href="?delete=<?php echo $row['id']; ?>">Delete</a>
-        </td>
-    </tr>
-    <?php } ?>
-</table>
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Student directory</h2>
+                <p>All students currently in your records.</p>
+            </div>
+        </div>
+        <?php if ($result->num_rows === 0) { ?>
+            <div class="empty-state">No students yet. Add your first student using the form above.</div>
+        <?php } else { ?>
+            <div class="student-table-wrap">
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Course</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php while ($row = $result->fetch_assoc()) { ?>
+                        <tr>
+                            <td><?php echo (int) $row['id']; ?></td>
+                            <td><?php echo htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['course'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td><?php echo htmlspecialchars($row['phone'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td class="table-actions">
+                                <a href="?edit=<?php echo (int) $row['id']; ?>">Edit</a>
+                                <a class="delete-link" href="?delete=<?php echo (int) $row['id']; ?>">Delete</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php } ?>
+    </section>
+</main>
+</body>
+</html>

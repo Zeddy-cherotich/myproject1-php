@@ -18,12 +18,41 @@ if (isset($_POST['login'])) {
     }
 }
 ?>
-<link rel="stylesheet" href="style.css">
-<h1>Login</h1>
-<?php if ($message != "") { echo "<p style='text-align:center; color:red;'><b>$message</b></p>"; } ?>
-<form method="POST">
-    <input type="text" name="username" placeholder="Username" required><br><br>
-    <input type="password" name="password" placeholder="Password" required><br><br>
-    <button type="submit" name="login">Login</button><br><br>
-    <a href="register.php">No account? Register</a>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Log in | Student Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="auth-shell">
+    <section class="auth-card">
+        <a class="brand auth-brand" href="login.php">
+            <span class="brand-mark" aria-hidden="true">S</span>
+            <span>STUDENT PORTAL</span>
+        </a>
+        <div class="auth-heading">
+            <h1>Welcome back</h1>
+            <p>Log in to manage your student records.</p>
+        </div>
+        <?php if ($message !== "") { ?>
+            <p class="alert" role="alert"><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></p>
+        <?php } ?>
+        <form class="auth-form" method="POST">
+            <div class="field">
+                <label for="username">Username</label>
+                <input id="username" type="text" name="username" placeholder="Enter your username" autocomplete="username" required>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+            </div>
+            <button class="button" type="submit" name="login">Log in</button>
+        </form>
+        <p class="auth-footer">Don't have an account? <a href="register.php">Create one</a></p>
+    </section>
+</main>
+</body>
+</html>
